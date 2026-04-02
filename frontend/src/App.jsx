@@ -1,44 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import PrivateRoute from './components/layout/PrivateRoute';
+import MainLayout from './components/layout/MainLayout';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import FinancesPage from './pages/FinancesPage';
 
 function App() {
-    const [apiStatus, setApiStatus] = useState({ status: 'Cargando...', color: 'text-yellow-400' });
-    // Así es como Vite accede a las variables de entorno
-    const apiUrl = import.meta.env.VITE_API_URL;
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Ruta Pública */}
+        <Route path="/login" element={<LoginPage />} />
 
-    useEffect(() => {
-        if (!apiUrl) {
-            console.error("La variable de entorno VITE_API_URL no está definida.");
-            setApiStatus({ status: 'Error: URL de la API no configurada.', color: 'text-red-500' });
-            return;
-        }
-
-        axios.get(`${apiUrl}/api/health`)
-            .then(response => {
-                setApiStatus({
-                    status: `Conectado! Backend responde: ${response.data.status}`,
-                    color: 'text-green-400'
-                });
-            })
-            .catch(error => {
-                console.error("No se pudo conectar al backend:", error);
-                setApiStatus({
-                    status: `Error de conexión: ${error.message}`,
-                    color: 'text-red-500'
-                });
-            });
-    }, [apiUrl]);
-
-    return (
-        <main className="h-screen w-full flex flex-col items-center justify-center bg-gray-900 text-white font-sans">
-            <h1 className="text-5xl font-bold mb-4">Grido Gestor</h1>
-            <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-                <p className="text-lg">
-                    Estado de la API: <strong className={apiStatus.color}>{apiStatus.status}</strong>
-                </p>
-            </div>
-        </main>
-    );
+        {/* Rutas Privadas envueltas en el Layout */}
+        <Route path="/" element={
+          <PrivateRoute>
+            <MainLayout />
+          </PrivateRoute>
+        }>
+          {/* El Outlet del MainLayout renderizará esto según la URL */}
+          <Route index element={<DashboardPage />} />
+          <Route path="finances" element={<FinancesPage />} />
+          {/* Añadiremos las demás rutas luego. Si no existe, redirige al inicio */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
