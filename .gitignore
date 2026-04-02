@@ -1,0 +1,7 @@
+# Node
+node_modules/
+.env
+
+# Frontend (anticipado para Vite/React)
+dist/
+.DS_Store
